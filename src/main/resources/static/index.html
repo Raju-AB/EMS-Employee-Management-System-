@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EmpSphere HR & Employee Management System</title>
+  
+  <!-- Remix Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div id="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="#" class="brand-logo">
+        <div class="brand-icon">
+          <i class="ri-user-star-fill"></i>
+        </div>
+        <div class="brand-text">
+          <h1>EmpSphere</h1>
+          <p>Enterprise HR</p>
+        </div>
+      </a>
+
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <button class="nav-btn active" data-tab="dashboard-tab">
+            <i class="ri-dashboard-3-line"></i>
+            <span>Dashboard</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-btn" data-tab="employees-tab">
+            <i class="ri-team-line"></i>
+            <span>Employee Directory</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-btn" data-tab="auth-tab">
+            <i class="ri-shield-keyhole-line"></i>
+            <span>Login & OTP Portal</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-btn" data-tab="settings-tab">
+            <i class="ri-settings-4-line"></i>
+            <span>API & Security</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="mode-badge">
+          <div class="mode-info">
+            <span class="status-dot" id="api-status-dot"></span>
+            <span id="api-mode-text">Live Server</span>
+          </div>
+          <label class="switch" title="Toggle Demo Mode vs Live API">
+            <input type="checkbox" id="demo-mode-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header Bar -->
+      <header class="top-header">
+        <div class="header-title">
+          <h2 id="page-title">Dashboard Overview</h2>
+          <p id="page-subtitle">Real-time workforce metrics and employee intelligence</p>
+        </div>
+
+        <div class="header-actions">
+          <a href="/swagger-ui.html" target="_blank" class="action-btn-icon" title="Open Swagger OpenAPI Documentation">
+            <i class="ri-book-open-line"></i>
+          </a>
+
+          <button class="action-btn-icon" id="theme-toggle-btn" title="Toggle Theme">
+            <i class="ri-sun-line" id="theme-icon"></i>
+          </button>
+
+          <button class="action-btn-icon" id="refresh-data-btn" title="Sync Data">
+            <i class="ri-refresh-line"></i>
+          </button>
+
+          <div class="user-profile-badge" id="credentials-btn" title="Click to view user profile & token">
+            <div class="user-avatar" id="header-avatar">G</div>
+            <div class="user-info">
+              <span id="header-username">Guest User</span>
+              <small id="header-role">UNAUTHENTICATED</small>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-sm" id="auth-action-btn" style="margin-left: 0.5rem;">
+            <i class="ri-login-box-line" id="auth-action-icon"></i> <span id="auth-action-text">Login</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Body Container -->
+      <main class="content-body">
+        
+        <!-- DASHBOARD TAB -->
+        <section id="dashboard-tab" class="view-page active">
+          <!-- Metric Stat Cards Grid -->
+          <div class="stats-grid">
+            <div class="card stat-card">
+              <div class="stat-details">
+                <span class="stat-label">Total Employees</span>
+                <span class="stat-value" id="stat-total-employees">0</span>
+                <div class="stat-trend">
+                  <i class="ri-arrow-up-line"></i>
+                  <span>Active workforce</span>
+                </div>
+              </div>
+              <div class="stat-icon">
+                <i class="ri-user-group-line"></i>
+              </div>
+            </div>
+
+            <div class="card stat-card cyan">
+              <div class="stat-details">
+                <span class="stat-label">Total Monthly Payroll</span>
+                <span class="stat-value" id="stat-total-payroll">$0</span>
+                <div class="stat-trend">
+                  <i class="ri-money-dollar-circle-line"></i>
+                  <span>Combined salaries</span>
+                </div>
+              </div>
+              <div class="stat-icon">
+                <i class="ri-wallet-3-line"></i>
+              </div>
+            </div>
+
+            <div class="card stat-card emerald">
+              <div class="stat-details">
+                <span class="stat-label">Average Salary</span>
+                <span class="stat-value" id="stat-avg-salary">$0</span>
+                <div class="stat-trend">
+                  <i class="ri-line-chart-line"></i>
+                  <span>Per employee avg</span>
+                </div>
+              </div>
+              <div class="stat-icon">
+                <i class="ri-funds-line"></i>
+              </div>
+            </div>
+
+            <div class="card stat-card amber">
+              <div class="stat-details">
+                <span class="stat-label">Departments</span>
+                <span class="stat-value" id="stat-dept-count">0</span>
+                <div class="stat-trend">
+                  <i class="ri-building-4-line"></i>
+                  <span>Active units</span>
+                </div>
+              </div>
+              <div class="stat-icon">
+                <i class="ri-organization-chart"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Content Grid -->
+          <div class="dashboard-grid">
+            
+            <!-- Left Card: Department Distribution -->
+            <div class="card">
+              <div class="section-header">
+                <h3>Department Breakdown</h3>
+                <span class="stat-label" id="dept-summary-count">0 Departments</span>
+              </div>
+              <div class="dept-list" id="dashboard-dept-list">
+                <!-- Dynamically Populated -->
+              </div>
+            </div>
+
+            <!-- Right Card: Quick Actions & Recent Activity -->
+            <div class="card">
+              <div class="section-header">
+                <h3>Quick Actions</h3>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" id="dash-add-emp-btn">
+                  <i class="ri-user-add-line"></i> Add New Employee
+                </button>
+                <button class="btn btn-secondary" id="dash-reg-user-btn">
+                  <i class="ri-shield-keyhole-line"></i> Login / Register User
+                </button>
+                <a href="/swagger-ui.html" target="_blank" class="btn btn-secondary" style="text-align: center; text-decoration: none;">
+                  <i class="ri-book-open-line"></i> Open Swagger API Docs
+                </a>
+                <button class="btn btn-danger btn-sm" id="dash-delete-all-btn" style="margin-top: 0.5rem;">
+                  <i class="ri-delete-bin-line"></i> Purge All Employees
+                </button>
+              </div>
+
+              <div class="section-header">
+                <h3>System Activity</h3>
+              </div>
+              <div class="activity-feed" id="activity-feed">
+                <!-- Activity Items -->
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- EMPLOYEES DIRECTORY TAB -->
+        <section id="employees-tab" class="view-page">
+          <!-- Toolbar -->
+          <div class="toolbar">
+            <div class="search-box">
+              <i class="ri-search-line"></i>
+              <input type="text" id="employee-search-input" placeholder="Search by name or email...">
+            </div>
+
+            <div class="filter-group">
+              <select class="select-input" id="dept-filter-select">
+                <option value="ALL">All Departments</option>
+              </select>
+
+              <select class="select-input" id="sort-select">
+                <option value="name-asc">Sort: Name (A-Z)</option>
+                <option value="name-desc">Sort: Name (Z-A)</option>
+                <option value="salary-high">Sort: Salary (High to Low)</option>
+                <option value="salary-low">Sort: Salary (Low to High)</option>
+              </select>
+
+              <select class="select-input" id="page-size-select" style="width: 110px;">
+                <option value="5">5 / page</option>
+                <option value="10" selected>10 / page</option>
+                <option value="25">25 / page</option>
+              </select>
+
+              <button class="btn btn-secondary" id="export-csv-btn" title="Export CSV">
+                <i class="ri-file-download-line"></i> Export
+              </button>
+
+              <button class="btn btn-primary" id="open-add-emp-modal-btn">
+                <i class="ri-add-line"></i> Add Employee
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Employee Name & Email</th>
+                  <th>Department</th>
+                  <th>Salary ($)</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="employee-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="pagination-bar">
+            <span id="pagination-info">Showing 0 of 0 employees</span>
+            <div style="display: flex; gap: 0.5rem;" id="pagination-buttons">
+              <!-- Pagination -->
+            </div>
+          </div>
+        </section>
+
+        <!-- USER & OTP PORTAL TAB -->
+        <section id="auth-tab" class="view-page">
+          <div style="max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            
+            <!-- JWT Login Card -->
+            <div class="card">
+              <div class="section-header">
+                <h3>JWT User Login</h3>
+                <span class="stat-label">Security Auth</span>
+              </div>
+              <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem;">
+                Authenticate with your email and password (`/auth/login`). Generates a Bearer JWT Token.
+              </p>
+
+              <form id="user-login-form">
+                <div class="form-group">
+                  <label for="login-email">Email Address</label>
+                  <input type="email" id="login-email" class="form-input" placeholder="e.g. admin@tcs.com" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="login-password">Password</label>
+                  <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                  <i class="ri-lock-unlock-fill"></i> Sign In & Generate JWT
+                </button>
+              </form>
+            </div>
+
+            <!-- User Registration Card -->
+            <div class="card">
+              <div class="section-header">
+                <h3>Account Registration</h3>
+                <span class="stat-label">Public</span>
+              </div>
+              <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem;">
+                Register a new account (`/users/register`). Triggers a 6-digit OTP email.
+              </p>
+
+              <form id="user-register-form">
+                <div class="form-group">
+                  <label for="reg-name">Full Name</label>
+                  <input type="text" id="reg-name" class="form-input" placeholder="e.g. John Doe" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-email">Email Address</label>
+                  <input type="email" id="reg-email" class="form-input" placeholder="e.g. john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-password">Password</label>
+                  <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-role">Role</label>
+                  <select id="reg-role" class="select-input" style="width: 100%;">
+                    <option value="USER">USER (Read Access)</option>
+                    <option value="ADMIN">ADMIN (Full Access)</option>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                  <i class="ri-user-add-fill"></i> Register & Send OTP
+                </button>
+              </form>
+            </div>
+
+            <!-- OTP Verification Form Card (Spans 2 columns) -->
+            <div class="card" style="grid-column: span 2;">
+              <div class="section-header">
+                <h3>OTP Verification & Resend Cooldown</h3>
+                <span class="stat-label">6-Digit Code</span>
+              </div>
+              <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem;">
+                Enter the 6-digit OTP code received via email (`/users/verify-otp`). Max 3 failed attempts allowed per OTP.
+              </p>
+
+              <form id="verify-otp-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label for="otp-email">Email Address</label>
+                    <input type="email" id="otp-email" class="form-input" placeholder="e.g. john@example.com" required>
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-secondary" id="resend-otp-btn" style="width: 100%;">
+                      <i class="ri-send-plane-line"></i> Resend OTP Code
+                    </button>
+                  </div>
+                </div>
+
+                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-top: 1rem; display: block;">Verification Code (6 Digits)</label>
+                <div class="otp-container" id="otp-boxes">
+                  <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                  <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                  <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                  <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                  <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                  <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                  <i class="ri-checkbox-circle-fill"></i> Verify OTP & Activate Account
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- API SETTINGS TAB -->
+        <section id="settings-tab" class="view-page">
+          <div style="max-width: 680px; margin: 0 auto;">
+            
+            <div class="card" style="margin-bottom: 2rem;">
+              <div class="section-header">
+                <h3>REST API & Security Configuration</h3>
+              </div>
+
+              <div class="form-group">
+                <label for="api-base-url">API Base URL</label>
+                <input type="text" id="api-base-url" class="form-input" value="http://localhost:8088">
+              </div>
+
+              <div class="form-group">
+                <label for="jwt-token-display">Active Bearer JWT Token</label>
+                <textarea id="jwt-token-display" class="form-input" rows="3" readonly placeholder="No active JWT token stored. Login to generate token."></textarea>
+              </div>
+
+              <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-primary" id="save-settings-btn">
+                  <i class="ri-save-line"></i> Save Settings
+                </button>
+                <button class="btn btn-secondary" id="test-connection-btn">
+                  <i class="ri-wifi-line"></i> Test Server Connection
+                </button>
+                <a href="/swagger-ui.html" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+                  <i class="ri-book-open-line"></i> OpenAPI Docs
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT EMPLOYEE MODAL -->
+  <div class="modal-overlay" id="employee-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="emp-modal-title">Add New Employee</h3>
+        <button class="close-modal-btn" data-close-modal="employee-modal">&times;</button>
+      </div>
+
+      <form id="employee-form">
+        <input type="hidden" id="emp-edit-original-email" value="">
+
+        <div class="form-group">
+          <label for="emp-email">Email Address *</label>
+          <input type="email" id="emp-email" class="form-input" placeholder="e.g. employee@tcs.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="emp-name">Full Name *</label>
+          <input type="text" id="emp-name" class="form-input" placeholder="e.g. Alice Smith" required>
+        </div>
+
+        <div class="form-group">
+          <label for="emp-dept">Department *</label>
+          <input type="text" id="emp-dept" class="form-input" placeholder="e.g. Engineering, HR, Finance..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="emp-salary">Salary ($) *</label>
+          <input type="number" step="0.01" min="1" id="emp-salary" class="form-input" placeholder="e.g. 75000" required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal="employee-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-emp-submit-btn">
+            <i class="ri-check-line"></i> Save Employee
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE MODAL -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-box" style="max-width: 400px; text-align: center;">
+      <div class="stat-icon" style="background: var(--danger-bg); color: var(--danger-color); margin: 0 auto 1rem auto; width: 64px; height: 64px; font-size: 2rem;">
+        <i class="ri-error-warning-line"></i>
+      </div>
+      <h3 style="margin-bottom: 0.5rem;" id="delete-modal-title">Delete Employee?</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;" id="delete-modal-msg">
+        Are you sure you want to remove this employee record? This action cannot be undone.
+      </p>
+
+      <div style="display: flex; justify-content: center; gap: 0.75rem;">
+        <button class="btn btn-secondary" data-close-modal="delete-modal">Cancel</button>
+        <button class="btn btn-danger" id="confirm-delete-btn">
+          <i class="ri-delete-bin-line"></i> Confirm Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN MODAL -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-box" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3>Sign In to EmpSphere</h3>
+        <button class="close-modal-btn" data-close-modal="login-modal">&times;</button>
+      </div>
+      <form id="modal-login-form">
+        <div class="form-group">
+          <label for="modal-login-email">Email Address</label>
+          <input type="email" id="modal-login-email" class="form-input" placeholder="e.g. admin@tcs.com" required>
+        </div>
+        <div class="form-group">
+          <label for="modal-login-password">Password</label>
+          <input type="password" id="modal-login-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          <i class="ri-lock-unlock-fill"></i> Sign In & Generate JWT Token
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- Application Script -->
+  <script src="js/app.js"></script>
+</body>
+</html>

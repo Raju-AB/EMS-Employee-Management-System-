@@ -1,0 +1,11 @@
+target/
+*.log
+.mvn/timing.properties
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
